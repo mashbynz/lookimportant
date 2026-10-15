@@ -1,0 +1,33 @@
+[
+  {
+    "name": "kitchen_wood",
+    "use": "workbench butcher-block top",
+    "real_world_size_m": 0.6,
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "source": "https://polyhaven.com/a/kitchen_wood",
+    "license": "CC0"
+  },
+  {
+    "name": "grey_plaster",
+    "use": "room walls (tinted in the material)",
+    "real_world_size_m": 1.0,
+    "authors": {
+      "Rob Tuytel": "All"
+    },
+    "source": "https://polyhaven.com/a/grey_plaster",
+    "license": "CC0"
+  },
+  {
+    "name": "concrete_floor_worn_001",
+    "use": "floor",
+    "real_world_size_m": 3.0,
+    "authors": {
+      "Dimitrios Savva": "Photography",
+      "Rico Cilliers": "Processing"
+    },
+    "source": "https://polyhaven.com/a/concrete_floor_worn_001",
+    "license": "CC0"
+  }
+]

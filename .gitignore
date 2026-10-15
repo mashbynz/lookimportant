@@ -1,0 +1,33 @@
+# Claude Code worktrees
+.claude/worktrees/
+
+# Unity generated
+game/[Ll]ibrary/
+game/[Tt]emp/
+game/[Oo]bj/
+game/[Ll]ogs/
+game/[Uu]ser[Ss]ettings/
+game/[Mm]emoryCaptures/
+game/[Rr]ecordings/
+game/*.csproj
+game/*.sln
+game/*.slnx
+game/.vs/
+game/.vscode/
+game/.idea/
+game/*.pidb.meta
+game/*.pdb.meta
+game/*.mdb.meta
+game/sysinfo.txt
+game/crashlytics-build.properties
+
+# Build output (published separately, never committed)
+Builds/
+
+# Blender autosaves
+*.blend1
+*.blend@
+
+# Python
+__pycache__/
+.venv/
