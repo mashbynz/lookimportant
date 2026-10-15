@@ -2,6 +2,13 @@
 
 Each commit adds an entry and bumps the version by 0.0.0001. Major and minor bumps are set by Matt.
 
+## 0.0.0003 - 2026-10-15
+- Unity project in `game/` (URP from the Universal 3D template, Input System), tuned for a small room: 4 m shadow distance, one cascade, shadowed spot lights, MSAA, half-res SSAO on PC, vsync.
+- Runtime scripts: point-and-click interaction with hover glow, seated head-look camera, spring-driven toggles, push button, detented selector, knife switch, gauge, pilot lamps, desk lamp, and swinging/rattling fidget props. `WorkbenchCircuit` is placeholder wiring between them.
+- Editor tooling: URP materials generated from `materials.json`, import rules, `SceneBuilder` that turns the Blender export into `Assets/Scenes/Workbench.unity`, `BuildScript` for Linux/Windows/WebGL.
+- `tools/make_sounds.py`: synthesised sound effects and loops (no recorded or purchased audio).
+- `tools/build.sh`, `tools/capture.sh`, `tools/serve_webgl.py`, `tools/install-tools.sh`.
+
 ## 0.0.0002 - 2026-10-15
 - Toolchain: Blender 5.2.2 LTS (user-local in `~/.local/opt`), Unity 6000.3.26f1 LTS with WebGL and Windows Mono build support (`~/Unity/Hub/Editor`).
 - `blender/build_scene.py`: procedural models and layout for the workbench, pegboard (real through-holes), room, and first props: toggle bank with indicator lamps, big red button, selector dial, knife switch, gauge, desk lamp, lock box with padlock, hanging tools, mug. Exports `game/Assets/Art/Models/Workbench.fbx` and saves `blender/workbench.blend`.

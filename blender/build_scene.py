@@ -5,7 +5,7 @@ Run headless from the repo root:
 
 Writes:
     blender/workbench.blend                 editable source
-    game/Assets/Art/Models/Workbench.fbx    what Unity imports
+    game/Assets/Art/Models/WorkbenchScene.fbx    what Unity imports
 
 Conventions (Blender world space, metres):
     +X right, +Y away from the player (towards the wall), +Z up.
@@ -26,7 +26,7 @@ from mathutils import Euler, Matrix, Vector
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ART = ROOT / "game" / "Assets" / "Art"
 BLEND_OUT = ROOT / "blender" / "workbench.blend"
-FBX_OUT = ART / "Models" / "Workbench.fbx"
+FBX_OUT = ART / "Models" / "WorkbenchScene.fbx"
 
 # --- layout constants -------------------------------------------------------
 BENCH_W, BENCH_D = 1.8, 0.7
