@@ -31,3 +31,6 @@ Builds/
 # Python
 __pycache__/
 .venv/
+
+# Written by a package during player builds
+game/Assets/Resources/PerformanceTestRun*

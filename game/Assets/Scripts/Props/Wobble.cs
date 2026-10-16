@@ -29,8 +29,9 @@ namespace LookImportant
 
         public override void Press(in RaycastHit hit)
         {
-            Vector3 local = transform.InverseTransformPoint(hit.point);
-            float side = Mathf.Sign(Vector3.Dot(Vector3.Cross(primaryAxis, local), Vector3.down) + 1e-4f);
+            // Push away from the click: which way gravity-side torque points decides the swing direction.
+            Vector3 axis = transform.TransformDirection(primaryAxis);
+            float side = Mathf.Sign(Vector3.Dot(Vector3.Cross(axis, hit.point - transform.position), Vector3.down) + 1e-4f);
             a.velocity += side * kick * Random.Range(0.8f, 1.2f);
             if (secondaryAxis != Vector3.zero)
                 b.velocity += kick * Random.Range(-0.6f, 0.6f);

@@ -2,13 +2,11 @@ using UnityEngine;
 
 namespace LookImportant
 {
-    /// <summary>Jewel pilot lamp: emissive lens plus a tiny point light, with a brief flicker on strike.</summary>
+    /// <summary>Jewel pilot lamp: an emissive lens (bloom does the glow), with a brief flicker on strike.</summary>
     public class IndicatorLamp : MonoBehaviour
     {
         public Renderer lens;
-        public Light glow;
         [ColorUsage(false, true)] public Color litEmission = Color.white;
-        public float glowIntensity = 0.35f;
 
         bool lit;
         float level, flicker;
@@ -22,7 +20,7 @@ namespace LookImportant
             if (lit) flicker = 0.09f;
         }
 
-        void Start() => Apply();
+        void Start() => Emission.Set(lens, Color.black);
 
         void Update()
         {
@@ -34,17 +32,7 @@ namespace LookImportant
             }
             if (Mathf.Approximately(level, target) && flicker <= 0f) return;
             level = Mathf.MoveTowards(level, target, Time.deltaTime * (lit ? 30f : 10f));
-            Apply();
-        }
-
-        void Apply()
-        {
             Emission.Set(lens, litEmission * level);
-            if (glow != null)
-            {
-                glow.intensity = glowIntensity * level;
-                glow.enabled = level > 0.01f;
-            }
         }
     }
 }

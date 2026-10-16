@@ -10,7 +10,7 @@ namespace LookImportant
     /// </summary>
     public abstract class Interactable : MonoBehaviour
     {
-        static readonly Color HoverGlow = new(0.075f, 0.062f, 0.045f);
+        static readonly Color HoverGlow = new(0.045f, 0.038f, 0.028f);
         static readonly HashSet<string> SelfLitMaterials = new() { "M_Bulb", "M_LampAmber", "M_LampGreen", "M_LampRed", "M_Fluoro" };
 
         Renderer[] glowRenderers;

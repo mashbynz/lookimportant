@@ -9,7 +9,9 @@ UNITY_REV=de8167e7440c
 DL="$HOME/Downloads/lookimportant-tools"
 mkdir -p "$DL" "$HOME/.local/opt" "$HOME/.local/bin"
 
-sudo apt-get install -y libarchive-tools xvfb   # bsdtar for Unity .pkg modules, virtual display for captures
+# bsdtar: Unity .pkg modules. xvfb + xdotool: headless captures. ffmpeg: Unity encodes WebGL audio (AAC) with it.
+# weston + xwayland: GPU benchmarks without a monitor (tools/perf.sh).
+sudo apt-get install -y libarchive-tools xvfb xdotool ffmpeg weston xwayland
 
 if [[ ! -x "$HOME/.local/opt/blender-$BLENDER_VER-linux-x64/blender" ]]; then
   curl -fL -o "$DL/blender.tar.xz" "https://download.blender.org/release/Blender${BLENDER_VER%.*}/blender-$BLENDER_VER-linux-x64.tar.xz"

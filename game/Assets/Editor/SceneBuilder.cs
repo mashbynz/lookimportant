@@ -13,10 +13,13 @@ namespace LookImportant.EditorTools
     /// this owns behaviour, lights, audio, colliders and post-processing.
     /// Re-run after re-exporting from Blender. Hand edits to the scene are lost.
     ///
-    /// Axis notes (Blender -> Unity with Bake Axis Conversion):
-    ///   Blender +X -> Unity -X, +Y -> -Z, +Z -> +Y. A Blender rotation of +a
-    ///   about +X is +a about Unity +X; about +Z it is -a about Unity +Y; about
-    ///   +Y it is +a about Unity +Z. Hinge axes and angles below follow from that.
+    /// Axis notes (checked with Diagnostics.DumpTransforms): world Blender
+    ///   (x, y, z) lands at Unity (x, z, y), and every object's local frame is
+    ///   Blender's with Z negated: Unity local X = Blender X, Y = Blender Y,
+    ///   Z = Blender -Z. A Blender rotation of +a about local X or Y is -a about
+    ///   the same Unity local axis; about Blender Z it is +a about Unity local -Z.
+    ///   Unity rotations look clockwise when viewed from the axis tip, which is
+    ///   how the 'clockwise to the player' axes below were chosen.
     /// </summary>
     public static class SceneBuilder
     {
@@ -84,8 +87,8 @@ namespace LookImportant.EditorTools
                 Collider(P($"Toggle_{n}_Lever"), 0.006f, 0.026f);
                 var ts = pivot.gameObject.AddComponent<ToggleSwitch>();
                 ts.axis = Vector3.right;
-                ts.onAngle = -24f;      // tipped up the slope, away from the player
-                ts.offAngle = 24f;
+                ts.onAngle = 24f;       // tipped up the slope, away from the player
+                ts.offAngle = -24f;
                 ts.soundOn = Clip("toggle_on");
                 ts.soundOff = Clip("toggle_off");
                 moving.Add(pivot);
@@ -95,16 +98,6 @@ namespace LookImportant.EditorTools
                 var lamp = lampRoot.gameObject.AddComponent<IndicatorLamp>();
                 lamp.lens = P($"Lamp_{n}_Lens").GetComponent<Renderer>();
                 lamp.litEmission = palette[lensMats[i]].LitEmission;
-                var glow = new GameObject("Glow").AddComponent<Light>();
-                glow.transform.SetParent(lampRoot, false);
-                glow.transform.localPosition = new Vector3(0f, 0.02f, 0f);
-                glow.type = LightType.Point;
-                glow.range = 0.14f;
-                glow.color = palette[lensMats[i]].emission;
-                glow.shadows = LightShadows.None;
-                glow.enabled = false;
-                lamp.glow = glow;
-                lamp.glowIntensity = 0.12f;
                 circuit.lamps[i] = lamp;
             }
         }
@@ -114,7 +107,7 @@ namespace LookImportant.EditorTools
             var plunger = P("BigButton_Plunger");
             Collider(P("BigButton_Cap"), 0.003f);
             var button = plunger.gameObject.AddComponent<PushButton>();
-            button.pressDirection = Vector3.down;
+            button.pressDirection = Vector3.forward;   // local +Z is down into the housing
             button.travel = 0.009f;
             button.soundDown = Clip("button_down");
             button.soundUp = Clip("button_up");
@@ -124,7 +117,7 @@ namespace LookImportant.EditorTools
             var knobPivot = P("DialUnit_KnobPivot");
             Collider(P("DialUnit_Knob"), 0.004f);
             var knob = knobPivot.gameObject.AddComponent<RotaryKnob>();
-            knob.axis = Vector3.up;     // panel normal; positive = clockwise to the player
+            knob.axis = Vector3.back;   // panel normal (towards the player): positive = clockwise
             knob.detents = new[] { -60f, -30f, 0f, 30f, 60f };
             knob.index = 0;
             knob.soundDetent = Clip("knob_detent");
@@ -138,7 +131,7 @@ namespace LookImportant.EditorTools
             Collider(P("KnifeSwitch_Handle"), 0.006f);
             Collider(P("KnifeSwitch_Blades"), 0.004f);
             var knife = hinge.gameObject.AddComponent<KnifeSwitch>();
-            knife.axis = Vector3.right;   // swings out towards the player
+            knife.axis = Vector3.left;    // positive swings the blades out towards the player
             knife.openAngle = 105f;
             knife.closed = false;
             knife.soundClose = Clip("knife_close");
@@ -150,7 +143,7 @@ namespace LookImportant.EditorTools
             Collider(P("Gauge_Body"), 0.002f);
             var gauge = gaugeRoot.gameObject.AddComponent<Gauge>();
             gauge.needle = P("Gauge_NeedlePivot");
-            gauge.axis = Vector3.forward;  // dial normal; positive = clockwise to the player
+            gauge.axis = Vector3.down;     // dial normal (towards the player): positive = clockwise
             gauge.minAngle = -135f;
             gauge.maxAngle = 135f;
             gauge.soundTap = Clip("glass_tap");
@@ -166,11 +159,12 @@ namespace LookImportant.EditorTools
             Collider(P("DeskLamp_Switch"), 0.006f);
             var light = SpotAt("DeskLamp_Point", "DeskLamp_Target", "DeskLampLight");
             light.color = new Color(1f, 0.83f, 0.62f);
-            light.intensity = 0.55f;
+            light.intensity = 0.4f;
             light.range = 3f;
-            light.spotAngle = 82f;
+            light.spotAngle = 90f;
             light.innerSpotAngle = 40f;
             light.shadowNearPlane = 0.03f;
+            light.shadows = LightShadows.Hard;      // soft shadows cost ~1.3 ms on an HD 6000
             var lamp = root.gameObject.AddComponent<DeskLamp>();
             lamp.lamp = light;
             lamp.bulb = P("DeskLamp_Bulb").GetComponent<Renderer>();
@@ -188,17 +182,17 @@ namespace LookImportant.EditorTools
             for (int i = 1; i <= 3; i++)
             {
                 var w = Swing($"Tool_Screwdriver_{i}", $"Tool_Screwdriver_{i}_Mesh", 4.5f, 0.12f, 60f, 7f, "rattle_plastic");
-                w.primaryAxis = Vector3.forward;
-                w.secondaryAxis = Vector3.right;
+                w.primaryAxis = Vector3.up;      // tip sideways in the rack
+                w.secondaryAxis = Vector3.right; // and towards/away from the board
             }
             var padlock = Swing("Padlock_Pivot", "Padlock_Mesh", 4.5f, 0.12f, 220f, 32f, "padlock_rattle");
-            padlock.primaryAxis = Vector3.right;
-            padlock.secondaryAxis = Vector3.forward;
+            padlock.primaryAxis = Vector3.right;   // swing out from the hasp
+            padlock.secondaryAxis = Vector3.up;     // and side to side
             var mug = Swing("Mug", "Mug_Mesh", 6f, 0.25f, 45f, 3.5f, "mug_tink");
             mug.primaryAxis = Vector3.right;
-            mug.secondaryAxis = Vector3.forward;
+            mug.secondaryAxis = Vector3.up;
             var loose = Swing("Loose_Screwdriver", "Loose_Screwdriver_Mesh", 1.8f, 0.3f, 260f, 40f, "rattle_plastic");
-            loose.primaryAxis = Vector3.up;   // rolls about its own shaft
+            loose.primaryAxis = Vector3.forward;   // rolls about its own shaft
         }
 
         static Wobble Swing(string pivotName, string meshName, float freq, float damping, float kick, float max, string clip)
@@ -206,7 +200,7 @@ namespace LookImportant.EditorTools
             var pivot = P(pivotName);
             Collider(P(meshName), 0.004f);
             var w = pivot.gameObject.AddComponent<Wobble>();
-            w.primaryAxis = Vector3.forward;   // pegboard normal: swing side to side against the board
+            w.primaryAxis = Vector3.up;   // pegboard normal: swing side to side against the board
             w.frequency = freq;
             w.damping = damping;
             w.kick = kick;
@@ -231,11 +225,11 @@ namespace LookImportant.EditorTools
         {
             var ceiling = SpotAt("CeilingLight_Point", "CeilingLight_Target", "CeilingLight");
             ceiling.color = new Color(0.86f, 0.93f, 1f);
-            ceiling.intensity = 2.2f;
+            ceiling.intensity = 3.0f;
             ceiling.range = 6f;
             ceiling.spotAngle = 125f;
             ceiling.innerSpotAngle = 60f;
-            ceiling.shadowNearPlane = 0.1f;
+            ceiling.shadows = LightShadows.None;   // fill light: its shadow pass cost 1.6 ms on an HD 6000
 
             RenderSettings.skybox = null;
             RenderSettings.ambientMode = AmbientMode.Trilight;
@@ -253,7 +247,6 @@ namespace LookImportant.EditorTools
             }
             lighting.bakedGI = false;
             lighting.realtimeGI = false;
-            lighting.autoGenerate = false;
             Lightmapping.lightingSettings = lighting;
 
             // Box-projected reflections of the room for chrome, brass and copper.
@@ -276,7 +269,7 @@ namespace LookImportant.EditorTools
 
             var ambience = new GameObject("Ambience").AddComponent<Ambience>();
             ambience.probe = probe;
-            ambience.sky = new Color(0.34f, 0.36f, 0.38f);
+            ambience.sky = new Color(0.40f, 0.42f, 0.44f);
             ambience.ground = new Color(0.12f, 0.11f, 0.10f);
         }
 
@@ -322,10 +315,11 @@ namespace LookImportant.EditorTools
             cam.allowMSAA = true;
             var data = cam.GetUniversalAdditionalCameraData();
             data.renderPostProcessing = true;
-            data.antialiasing = AntialiasingMode.None;
+            data.antialiasing = AntialiasingMode.FastApproximateAntialiasing;   // MSAA x4 cost 6 ms on an HD 6000
             go.AddComponent<AudioListener>();
             go.AddComponent<DeskCamera>();
             go.AddComponent<InteractionController>();
+            go.AddComponent<AdaptiveResolution>();
             go.AddComponent<AutoCapture>();
 
             var volume = new GameObject("PostProcessing").AddComponent<Volume>();
@@ -346,6 +340,8 @@ namespace LookImportant.EditorTools
             bloom.threshold.Override(1.0f);
             bloom.intensity.Override(0.45f);
             bloom.scatter.Override(0.6f);
+            bloom.downscale.Override(BloomDownscaleMode.Quarter);
+            bloom.maxIterations.Override(4);
             var vignette = profile.Add<Vignette>();
             vignette.intensity.Override(0.3f);
             vignette.smoothness.Override(0.45f);
